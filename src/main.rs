@@ -2,8 +2,12 @@
 #![allow(unused_variables)]
 #![allow(dead_code)]
 
+mod camera;
+mod ray;
 mod vec3;
 
+use camera::Camera;
+use ray::Ray;
 use std::env;
 use std::fs::{File, OpenOptions};
 use std::io::Write;
@@ -12,6 +16,18 @@ use vec3::Vect3;
 
 type Point = Vect3;
 type Color = Vect3;
+
+fn main() {
+    let mut file = make_ppm();
+    render(&mut file);
+}
+
+fn ray_color(ray: &Ray) -> Color {
+    let unit_direction = ray.direction().unit_vector();
+    let t = 0.5 * (unit_direction.y + 1.0);
+    // Add complimentary parts red and green
+    (1.0 - t) * Color::new(1., 1., 1.) + t * Color::new(0.5, 0.7, 1.)
+}
 
 fn make_ppm() -> File {
     /* Creating an output file */
@@ -28,11 +44,12 @@ fn make_ppm() -> File {
         .open(path)
         .unwrap();
 
-    return file
+    return file;
 }
 
-fn hello_ppm(file: &mut File){
+fn render(file: &mut File) {
     /* Image Dimensions */
+    const ASPECT_RATIO: f64 = 16.0 / 9.0; // Widescreen
     const IMG_WIDTH: usize = 256;
     const IMG_HEIGHT: usize = 256;
 
@@ -43,17 +60,24 @@ fn hello_ppm(file: &mut File){
         Err(why) => eprintln!("Could not write. {}", why),
     }
 
-    // Calculate RGB tripletes
+    let cam: Camera = Camera::default();
+
+    /* Compute RGB triplets */
+    
+    // Top to bottom row
     for row in (0..IMG_HEIGHT).rev() {
         eprintln!("Scan lines left {}", row);
-        // Top to bottom row
+        // Leftmost column to rightmost
         for col in 0..IMG_WIDTH {
-            // Leftmost column to rightmost
-            let pixel_color: Color = Vect3::new(
-                col as f64 / (IMG_WIDTH - 1) as f64,
-                row as f64 / (IMG_HEIGHT - 1) as f64,
-                0.25,
-            );
+
+            // Coordinates where the ray intercepts the screen in the xy plane
+            let u: f64 = col as f64 / (IMG_WIDTH - 1) as f64;
+            let v: f64 = row as f64 / (IMG_WIDTH - 1) as f64;
+
+            let ray_direction: Vect3 =
+                cam.lower_left_corner + (u * cam.horizontal) + (v * cam.vertical) - cam.origin;
+            let r: Ray = Ray::new(cam.origin, ray_direction);
+            let pixel_color: Color = ray_color(&r);
 
             match file.write_all(pixel_color.write_color().as_bytes()) {
                 Ok(_) => (),
@@ -62,9 +86,4 @@ fn hello_ppm(file: &mut File){
         }
     }
     eprintln!("Done.");
-}
-
-fn main() {
-    let mut file = make_ppm();
-    hello_ppm(&mut file);
 }

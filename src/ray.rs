@@ -1,42 +1,41 @@
-use vec3::Vect3;
+use crate::vec3::Vect3;
 
-struct Ray{
+type Point = Vect3;
+type Color = Vect3;
+
+pub struct Ray {
     pub origin: Vect3,
     pub direction: Vect3,
 }
 
-impl Ray{
-
-    pub fn new(origin: Point, direction: Vect3) -> Self{
-        Self{
-            origin,
-            direction,
-        }
+impl Ray {
+    pub fn new(origin: Point, direction: Vect3) -> Self {
+        Self { origin, direction }
     }
-    
 
     pub fn origin(&self) -> Point {
         self.origin
     }
 
-    pub fn direction() -> Vect3 {
+    pub fn direction(&self) -> Vect3 {
         self.direction
+    }
+
+    pub fn at(&self, t: f64) -> Vect3 {
+        self.origin + (t * self.direction)
     }
 }
 
-impl Default for Ray{
+impl Default for Ray {
     fn default() -> Self {
-        Self{
-            origin: Vect3::new(0., 0., 0.,),
+        Self {
+            origin: Vect3::new(0., 0., 0.),
             direction: Vect3::new(0., 0., 0.),
         }
     }
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::*;
-
-
-
 }

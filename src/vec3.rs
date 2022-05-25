@@ -10,9 +10,9 @@ use float_cmp::approx_eq;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vect3 {
-    x: f64,
-    y: f64,
-    z: f64,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
 }
 
 impl Vect3 {
@@ -149,6 +149,18 @@ impl std::ops::Mul<f64> for Vect3 {
     }
 }
 
+impl std::ops::Mul<Vect3> for f64 {
+    type Output = Vect3;
+
+    fn mul(self, rhs: Vect3) -> Vect3 {
+        Vect3 {
+            x: self * rhs.x,
+            y: self * rhs.y,
+            z: self * rhs.z,
+        }
+    }
+}
+
 // TODO:  It's easier to implement on numerics than write a generic
 impl std::ops::MulAssign<f64> for Vect3 {
     fn mul_assign(&mut self, rhs: f64) {
@@ -257,14 +269,28 @@ mod tests {
     }
 
     #[test]
-    fn multiplying_vectors() {
+    fn vector_mul_vector() {
         let (a, b) = two_vectors();
         let prod = a * b;
         assert_eq!(prod, Vect3::new(4., 10., 18.));
     }
 
     #[test]
-    fn multiplying_assignment() {
+    fn scalar_mul_vector() {
+        let (a, _) = two_vectors();
+        let prod = 2.0 * a;
+        assert_eq!(prod, Vect3::new(2., 4., 6.));
+    }
+
+    #[test]
+    fn vector_mul_scalar() {
+        let (a, _) = two_vectors();
+        let prod = a * 2.0;
+        assert_eq!(prod, Vect3::new(2., 4., 6.));
+    }
+
+    #[test]
+    fn scalar_multiplying_assignment() {
         let mut a = Vect3::new(1., 2., 3.);
         a *= 2.0;
         assert_eq!(a, Vect3::new(2., 4., 6.));
