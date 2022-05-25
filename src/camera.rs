@@ -1,3 +1,8 @@
+/*
+Simple camera class.
+This file also controls how the viewport dimensions.
+*/
+
 use crate::vec3::Vect3;
 
 type Point = Vect3;
@@ -29,7 +34,6 @@ impl Camera {
             viewport_height,
             viewport_width,
             focal_length,
-
             origin,
             horizontal,
             vertical,

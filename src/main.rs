@@ -23,9 +23,19 @@ fn main() {
 }
 
 fn ray_color(ray: &Ray) -> Color {
+
+    /*
+    (LERP):= blended_value = (1-t)*start_vlaue + t*end_value
+    */
+
     let unit_direction = ray.direction().unit_vector();
-    let t = 0.5 * (unit_direction.y + 1.0);
-    // Add complimentary parts red and green
+    /*
+    Gradient direction determined by the unit vector component
+    Gradient occurs at all because the direction vector is normalized
+    .:. blending is totally controlled by `t`, not position on the plane
+    */
+    let t = 0.5 * (unit_direction.y + 1.0); 
+    // LERP between white and blue in this case
     (1.0 - t) * Color::new(1., 1., 1.) + t * Color::new(0.5, 0.7, 1.)
 }
 

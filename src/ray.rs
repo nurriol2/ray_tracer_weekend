@@ -1,3 +1,8 @@
+/*
+Ray that can be sent into a scene.
+Rays can be created, placed, and directed into a scene.
+*/
+
 use crate::vec3::Vect3;
 
 type Point = Vect3;
@@ -33,9 +38,4 @@ impl Default for Ray {
             direction: Vect3::new(0., 0., 0.),
         }
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
 }
