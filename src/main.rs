@@ -22,13 +22,17 @@ fn main() {
     render(&mut file);
 }
 
-fn ray_hit_sphere(radius: f64, center: Point, r: &Ray) -> bool {
+fn ray_hit_sphere(radius: f64, center: Point, r: &Ray) -> f64 {
     let oc = r.origin - center;
-    let a = r.direction.dot(r.direction);
-    let b = 2.0 * (r.direction.dot(oc));
-    let c = oc.dot(oc) - (radius * radius);
-    let discriminant = (b * b) - (4.0 * a * c);
-    discriminant > 0.0
+    let a = r.direction.length_squared();
+    let half_b = r.direction.dot(oc);
+    let c = oc.length_squared() - (radius * radius);
+    let discriminant = (half_b * half_b) - (a * c);
+    if discriminant < 0.0 {
+        return -1.0
+    } else {
+        return (-half_b - discriminant.sqrt() ) / a
+    }
 }
 
 fn ray_color(ray: &Ray) -> Color {
@@ -43,8 +47,10 @@ fn ray_color(ray: &Ray) -> Color {
     let sphere_center: Point = Point::new(0., 0., -1.);
     let sphere_radius = 0.5;
 
-    if ray_hit_sphere(sphere_radius, sphere_center, ray){
-        return Color::new(0., 1., 0.)
+    let t = ray_hit_sphere(sphere_radius, sphere_center, ray);
+    if t > 0.0 {
+        let normal: Vect3 = (ray.at(t) - Vect3::new(0., 0., -1.)).unit_vector();
+        return 0.5 * Color::new(normal.x + 1.0, normal.y + 1.0, normal.z + 1.0)
     }
 
     // Render the background as a gradient
