@@ -22,12 +22,32 @@ fn main() {
     render(&mut file);
 }
 
+fn ray_hit_sphere(radius: f64, center: Point, r: &Ray) -> bool {
+    let oc = r.origin - center;
+    let a = r.direction.dot(r.direction);
+    let b = 2.0 * (r.direction.dot(oc));
+    let c = oc.dot(oc) - (radius * radius);
+    let discriminant = (b * b) - (4.0 * a * c);
+    discriminant > 0.0
+}
+
 fn ray_color(ray: &Ray) -> Color {
 
     /*
+    Determine the color seen by this ray.
+    
     (LERP):= blended_value = (1-t)*start_vlaue + t*end_value
     */
 
+    // Add a (green) sphere to the scene
+    let sphere_center: Point = Point::new(0., 0., -1.);
+    let sphere_radius = 0.5;
+
+    if ray_hit_sphere(sphere_radius, sphere_center, ray){
+        return Color::new(0., 1., 0.)
+    }
+
+    // Render the background as a gradient
     let unit_direction = ray.direction().unit_vector();
     /*
     Gradient direction determined by the unit vector component
@@ -60,8 +80,8 @@ fn make_ppm() -> File {
 fn render(file: &mut File) {
     /* Image Dimensions */
     const ASPECT_RATIO: f64 = 16.0 / 9.0; // Widescreen
-    const IMG_WIDTH: usize = 256;
-    const IMG_HEIGHT: usize = 256;
+    const IMG_WIDTH: usize = 400;
+    const IMG_HEIGHT: usize = (IMG_WIDTH as f64 / ASPECT_RATIO) as usize; 
 
     // First, write the file header
     let header = format!("P3\n{} {}\n255\n", IMG_WIDTH, IMG_HEIGHT);
@@ -82,7 +102,7 @@ fn render(file: &mut File) {
 
             // Coordinates where the ray intercepts the screen in the xy plane
             let u: f64 = col as f64 / (IMG_WIDTH - 1) as f64;
-            let v: f64 = row as f64 / (IMG_WIDTH - 1) as f64;
+            let v: f64 = row as f64 / (IMG_HEIGHT - 1) as f64;
 
             let ray_direction: Vect3 =
                 cam.lower_left_corner + (u * cam.horizontal) + (v * cam.vertical) - cam.origin;
